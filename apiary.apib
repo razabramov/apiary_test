@@ -1,0 +1,1480 @@
+FORMAT: 1A
+HOST: https://your-bank-server.evercompliant.com/MerchantViewServer/
+
+# MerchantView V3
+This API will be available to customers signing in to EverCompliant MerchantView v3. For further information, please contact support@evercompliant.com.
+
+
+## HTTP Headers
+The following custom HTTP Headers must be present when invoking the  API (also refer to [RFC for custom HTTP Header](http://tools.ietf.org/html/rfc6648) for the naming reason):  
+
+### Authorization
+All system calls (except Login and Logout) require an "Authorization" header or a matching query string (see "Authentication" section)
+
+Example:
+
+- Authorization: Bearer 93bu7riphr6umm1buanmfui25no6bup4
+
+## Enum Types
+Enum constant 
+which is used in the request or response data. Enum value will always be represented as int.
+
+### ScanType<a id="ScanType"></a>
+
+    enum ScanType {
+        ON_DEMAND(0),
+        BOARDING(1),
+        MONITORING_SCHEDULED(2),
+        MONITORING_ON_DEMAND(3)
+    }
+    
+### ScanFrequency<a id="ScanFrequency"></a>
+
+    enum ScanFrequency {
+        ONE_TIME(10),           // scans are one time - monitoring is turned off 
+        DAILY(20),              // scans are every day
+        TWICE_A_WEEK(30),       // scans are Monday and Thursday 
+        WEEKLY(40),             // scans are every Sunday
+        TWICE_A_MONTH(50),      // scans are 1st and 15th of the month
+        MONTHLY(60),            // scans are at the first of the month, every month
+    }
+    
+### FileType<a id="FileType"></a>
+
+    enum FileType {
+        BOARDING_FILE(1),
+        DEBOARDING_FILE(2),
+        WEB_ID_FILE(3),
+    }
+    
+### ScanStatus<a id="ScanStatus"></a>
+
+    enum ScanStatus {
+        SUBMITTED(1),
+        IN_PROGRESS(2),
+        COMPLETED(3),
+        ERROR(4)
+    }
+    
+### DisputeStatus<a id="DisputeStatus"></a>
+
+    enum DisputeStatus {
+        SUBMITTED(1),
+        IN_PROGRESS(2),
+        ADDITIONAL_INFO_REQUIRED(3),
+        REJECTED(4),
+        ACCEPTED(5),
+        WITHDRAWN(6),
+    }
+
+### FindingStatus<a id="FindingStatus"></a>
+
+    enum FindingStatus {
+        NOT_CHECKED(1),
+        IN_PROGRESS(2),
+        ALLOWED(3),
+        REMEDIATED(4),
+        DISPUTED(5),
+        FALSE_POSITIVE(6),
+        DISPUTE_REJECTED(7),
+    }
+
+    
+### Severity<a id="Severity"></a>
+
+    enum Severity {
+        FAIL(1),
+        WARNING(2),
+        INFO(3),
+        PASS(4),
+        OFFLINE(5),
+        NOT_SCANNED(6),
+    }
+    
+    
+### MerchantStatus<a id="MerchantStatus"></a>
+
+    enum MerchantStatus {
+        BOARDING(1),
+        MONITORING(2),
+        DELETED(3),
+        TERMINATED(5)
+    }
+    
+### AliasType<a id="AliasType"></a>
+
+    enum AliasType {
+        TEXT(1),
+        MERCHANT_NAME(2),
+        PERSON_NAME(3),
+        MID(4)
+    }
+    
+### FindingOrigin<a id="FindingOrigin"></a>
+
+    enum FindingOrigin {
+        MANUAL(1),
+        WHOIS(2),
+        WEBSITE(3),
+        MERCHANT_INPUT(4),
+        SSL_CERTIFICATE(5),
+        OWNER_INPUT(6),
+        CLASSIFIER(7),
+        KEYWORD(8),
+    }
+    
+
+    
+### FilterType<a id="FilterType"></a>
+
+    enum FilterType {
+        FINDING_TYPE(7),            //value: array of FindingType
+        FINDING_SUB_TYPE(8),        //value: array of FindingSubType
+        IS_AVAILABLE(9),            //value: array of Boolean
+        PAYMENT_PAGE_FOUND(10),     //value: array of Boolean
+        MCC_CATEGORY_FOUND(11),     //value: array of int
+        MERCHANT_NAME(13),          //value: string
+        MERCHANT_MID(14),           //value: array of string
+        SEVERITY(15),               //value: array of Severity
+        DISPUTE_STATUS(16),         //value: array of DisputeStatus
+        DOMAIN(17),                 //value: array of string
+        MERCHANT_ID(18),            //value: array of int
+        IS_REGISTERED(19),          //value: array of Boolean
+        PAYMENT_PAGE_REPORTED(20),  //value: array of Boolean
+        MCC_CATEGORY_REPORTED(21),  //value: array of int
+        SCAN(22),                   //value: array of int
+        FINDING_STATUS(23),         //value: array of FindingStatus
+        SCAN_ITEM_SEVERITY(24),     //value: array of Severity
+        MERCHANT_SEARCH(25),        //value: string
+        SCAN_ITEM_ID(26),           //value: array of int
+        MERCHANT_STATUS(27),        //value: array of MerchantStatus
+    }
+    
+### FindingType<a id="FindingType"></a>
+
+    enum FindingType {
+        CONTENT (1),
+        PAYMENT_PAGE (2),
+        MCC (3),
+        SECURITY_PROBLEM (13),
+        THIRD_PARTY_PAYMENT_PROVIDER (23),
+        AVAILABILITY (28),
+        IP (29),
+        LINK (30),
+    }
+
+### FindingSubType<a id="FindingSubType"></a>
+
+    enum FindingSubType {
+        MCC_MISCODE (76),
+        ADULT_CONTENT (2),
+        GAMBLING (3),
+        PHARMACEUTICALS (4),
+        PREMIER_LEAGUE_TICKETS (5),
+        ALCOHOL (6),
+        BEASTIALITY (7),
+        MOTO_AGGREGATION (8),
+        RAPE_HATE_VIOLENCE (9),
+        CHILD_PORNOGRAPHY (10),
+        WEBCAMS (12),
+        COUNTERFEIT_STOLEN_GOODS (14),
+        BRAND_DAMAGING_GOODS (15),
+        ILLEGAL_BY_STATE_LAW (16),
+        CASHING_CHECKS_COLLATERAL (17),
+        COLLECTING_DEBTS (18),
+        CREDIT_RESTORATION_SERVICES (19),
+        DOOR_TO_DOOR_SALES (20),
+        PYRAMID_SCHEMES (21),
+        PROSTITUTION (22),
+        BATH_SALTS (23),
+        K2 (24),
+        MODIFICATION_CHIPS (25),
+        HD_DVD_AND_BLU_RAY_DISC_DECRYPTION_DEVICES (26),
+        SALVIA_DIVINORUM (27),
+        CYBER_SQUATTING (29),
+        ADS_TRAP (30),
+        WEBSITE_AUTHENTICITY_WARNING (31),
+        FIREARMS (32),
+        TOBACCO (34),
+        ELECTRONIC_CIGARETTES (35),
+        ILLEGAL_SUBSTANCES (36),
+        COMPLAINTS (37),
+        DIGITAL_WALLET (38),
+        FRAUD (39),
+        DATING_SERVICE (40),
+        PAYMENT_PAGE_AFFILIATION (42),
+        COPYRIGHT_INFRINGEMENT (43),
+        CYBER_LOCKER (44),
+        NUTRACEUTICALS (45),
+        QUESTIONABLE_SUBSTANCE (46),
+        MEDICAL_DEVICES (47),
+        NEGATIVE_OPTION_MARKETING (49),
+        HIJACKED_DOMAIN (50),
+        PORN_SUPPORT (51),
+        JAMMERS_SIGNAL_BLOCKERS (53),
+        SEX_TOYS (54),
+        FAKE_IDS_AND_GOVERNMENT_DOCUMENTS (57),
+        PAYDAY_LOANS (58),
+        GET_RICK_QUICK_SCHEMES (62),
+        GIFT_CARDS (63),
+        PFIZER (66),
+        GAMBLING_CASINO (67),
+        GAMBLING_SPORT (68),
+        GAMBLING_HORSE (69),
+        AFFILATION_NETWORK (70),
+        THIRD_PARTY_SERVICE_PROVIDER (41),
+        SECURITY (13),
+        INVALID_SSL_CERTIFICATE (64),
+        MISUSE_INVALID_SEAL (48),
+        MALICIOUS_CYBER_ACTIVITY (55),
+        PAYMENT_PAGE (11),
+        PAYPAL (33),
+        INACTIVE_PAYMENT_ENVIRONMENT (52),
+        BITCOIN (56),
+        PAYONEER (65),
+        IP_ADDRESS (71),
+        AFFILIATION (28),
+        TRANSACTION_LAUNDERER (72),
+        UNDISCLOSED_MERCHANT (73),
+        ASSOCIATED (74),
+        ASSOCIATOR (75),
+        ONLINE (59),
+        OFFLINE (60),
+        REDIRECT (61),
+        GET_RICK_QUICK_SCHEMES (62),
+        GIFT_CARDS (63),
+        INVALID_SSL_CERTIFICATE (64),
+        PAYONEER (65),
+        PFIZER (66),
+        GAMBLING_CASINO (67),
+        GAMBLING_SPORT (68),
+        GAMBLING_HORSE (69),
+        AFFILATION_NETWORK (70),
+        IP_ADDRESS (71),
+        TRANSACTION_LAUNDERER (72),
+        UNDISCLOSED_MERCHANT (73),
+        ASSOCIATED (74),
+        ASSOCIATOR (75),
+        MCC_MISCODE (76),
+        ONLINE_SHOP_INDEX (77),
+        LOANS (78),
+        COLD_WEAPONS (79),
+        COUNTRY (80),
+        UNAUTHORIZED_THIRD_PARTY_SERVICE_PROVIDER (81),
+        ONLINE_PHARMACIES (82),
+        PSYCHIC_SERVICES (83),
+        HEALTH_BEAUTY_SPAS (84),
+        FANTASY_SPORTS (85),
+        SPORTS_FORECASTING_OR_ODDS_MAKING (86),
+        AMYL_NITRITE_INHALANTS (87),
+        MARIJUANA (88),
+        DRUG_PARAPHERNALIA (89),
+        FIREWORKS (90),
+        GUNPOWDER_AND_OTHER_EXPLOSIVES (91),
+        AMMUNITIONS (92),
+        FOREX (93),
+        FINANCIAL_PRODUCTS (94),
+        BEARER_SHARES (95),
+        AIRLINES (96),
+        BAIL_BONDS (97),
+        BANKRUPTCY_LAWYERS (98),
+        CELL_PHONES (99),
+        CONPUTERS_TECHNICAL_SUPPORT (100),
+        TRAVEL_RESEVATION_SERVICES (101),
+        CREDIT_CARD_AND_IDENTITY_THEFT_PROTECTION (102),
+        CRIUSES (103),
+        IN_GAME_CURRENCY_OR_VIRTUAL_CURRENCY (104),
+        MARIJUANA_DISPENSARIES (106),
+        MORTGAGE_OR_REAL_ESTATE_CONSULTING (105),
+        MUGSHOT_REMOVAL (107),
+        REAL_ESTATE_OPPORTUNITIES (108),
+        SECURITIES_BROKERS (109),
+        TELEMARKETING (110),
+        TIMESHARES (111),
+        BAKERIES (112),
+        MISCELLANEOUS_FOOD_STORES (113),
+        SOCIAL_MEDIA_ACTIVITY (114),
+        USING_THIRD_PARTY_SERVICE_PROVIDER (115),
+        VIRTUAL_CURRENCY (116),
+        VISA (117),
+        BAD_HISTORY (118),
+        FORWARDING_BROKERS (119),
+        DINERS (120),
+        JBC (121),
+        DISCOVER (122),
+        MASTERCARD (123),
+        AMEX (124),
+        OFFLINE_PAYMENT (125),
+        UNAVAILABLE (126),
+    }
+
+## Data Model
+
+
+### MCCModel<a id="MCCModel"></a>
+
+    struct MCCModel {
+        Integer id
+        String name
+    }
+
+### AddressModel<a id="AddressModel"></a>
+
+    struct AddressModel {
+        Integer id
+        String line1
+        String line2
+        String line3
+        String line4
+        String city
+        String state
+        String postalCode
+        String country
+        Integer merchantId
+        FindingOrigin findingOrigin
+    }
+    
+### AliasModel<a id="AliasModel"></a>
+
+    struct AliasModel {
+        Integer id
+        String text
+        AliasType aliasType
+        Integer merchantId
+        FindingOrigin findingOrigin
+    }
+
+
+### UrlModel<a id="UrlModel"></a>
+
+    struct UrlModel {
+        Integer id
+        FindingOrigin findingOrigin
+        String absoluteUri
+        String dba
+        Boolean isEcommerce
+        Boolean isRegistered
+        Integer mcc
+        String mid
+        Boolean exclude
+    }
+
+### PhoneModel<a id="PhoneModel"></a>
+
+    struct PhoneModel {
+        Integer id
+        String number
+        Integer merchantId
+        FindingOrigin findingOrigin
+    }
+
+### EmailAddressModel<a id="EmailAddressModel"></a>
+
+    struct EmailAddressModel {
+        Integer id
+        String address
+        Integer merchantId
+        FindingOrigin findingOrigin
+    }
+
+
+
+## Request Data Model
+Below are psudo-code struct definitions describing the complex JSON data model used in the API request.  
+
+### LoginParam<a id="LoginParam"></a>
+
+    struct DeviceModelParam {
+        String username;
+        String password;
+    }
+
+### MerchantBoardingFileHeader<a id="MerchantBoardingFileHeader"></a>
+
+    struct MerchantBoardingFileHeader {
+        Optional<String> MerchantID = "Merchant ID (MID)"
+        Optional<String> URL = "URL"
+        Optional<String> MerchantDBA = "Merchant DBA"
+        String MerchantLegalName = "Merchant Legal Name"
+        Optional<int> MCC = "MCC"
+        Optional<String> AnnualTransactionVolume = "Annual Transaction Volume"
+        Optional<String> MerchantAddress1 = "Merchant Address 1"
+        Optional<String> MerchantAddress2 = "Merchant Address 2"
+        Optional<String> MerchantCity = "Merchant City"
+        Optional<String> MerchantRegionState = "Merchant Region/State"
+        Optional<String> MerchantCountry = "Merchant Country"
+        Optional<String> MerchantPostalZipCode = "Merchant Postal/Zip Code"
+        Optional<String> MerchantPhoneNumber = "Merchant Phone Number"
+        Optional<String> MerchantEmailAddress = "Merchant Email Address"
+        Optional<String> OwnerName = "Owner Name"
+        Optional<String> OwnerAddress1 = "Owner Address 1"
+        Optional<String> OwnerAddress2 = "Owner Address 2"
+        Optional<String> OwnerCity = "Owner City"
+        Optional<String> OwnerRegionState = "Owner Region/State"
+        Optional<String> OwnerCountry = "Owner Country"
+        Optional<String> OwnerPostalZipCode = "Owner Postal/Zip Code"
+        Optional<String> OwnerPhoneNumber = "Owner Phone Number"
+        Optional<String> OwnerEmailAddress = "Owner Email Address"
+    }
+
+### MerchantBoardingFileRow<a id="MerchantBoardingFileRow"></a>
+
+    struct MerchantBoardingFileRow {
+        Optional<String> MerchantID
+        Optional<String> URL
+        Optional<String> MerchantDBA
+        String MerchantLegalName  //Legal Name is the unique ID of the merchant in the bank. Multiple rows containing the same legal name will be grouped under the same merchant account.
+        Optional<int> MCC
+        Optional<String> AnnualTransactionVolume
+        Optional<String> MerchantAddress1
+        Optional<String> MerchantAddress2
+        Optional<String> MerchantCity
+        Optional<String> MerchantRegionState
+        Optional<String> MerchantCountry
+        Optional<String> MerchantPostalZipCode
+        Optional<String> MerchantPhoneNumber
+        Optional<String> MerchantEmailAddress
+        Optional<String> OwnerName
+        Optional<String> OwnerAddress1
+        Optional<String> OwnerAddress2
+        Optional<String> OwnerCity
+        Optional<String> OwnerRegionState
+        Optional<String> OwnerCountry
+        Optional<String> OwnerPostalZipCode
+        Optional<String> OwnerPhoneNumber
+        Optional<String> OwnerEmailAddress
+    }
+
+### MerchantDeBoardingFileHeader<a id="MerchantDeBoardingFileHeader"></a>
+
+    struct MerchantDeBoardingFileHeader {
+        String MerchantLegalName = "Merchant Legal Name"
+    }
+
+### MerchantDeBoardingFileRow<a id="MerchantDeBoardingFileRow"></a>
+
+    struct MerchantDeBoardingFileRow {
+        String MerchantLegalName
+    }
+
+### UploadMerchantParam<a id="UploadMerchantParam"></a>
+
+    struct UploadMerchantParam {
+        FileType fileType
+        String fileContent //Base64 encoded CSV file 
+        Optional<String> comment
+        String filename
+        String extension
+        Optional<ScanType> scanType
+        Optional<ScanFrequency> scanFrequency
+        Optional<Integer> maxDaysSinceLastScanned
+    }
+
+### FilterObject<a id="FilterObject"></a>
+
+    object FilterObject {
+        FilterType : Value //see FilterType for type specific values
+        FilterType : Value 
+        ..
+    }
+
+### GetFilteredParam<a id="GetFilteredParam"></a>
+
+    struct GetFilteredParam {
+        Optional<int> start;    //for paging
+        Optional<int> take;     //for paging
+        Optional<FilterObject> filters
+    }
+
+### SetMerchantStatusParam<a id="SetMerchantStatusParam"></a>
+
+    struct SetMerchantStatusParam {
+        int scanId
+        Optional<FilterObject> findingFilters
+        int[] findings
+        Optional<FilterObject> merchantFilters
+        int[] merchants
+        MerchantStatus merchantStatus
+    }
+
+### AddDisputeParam<a id="AddDisputeParam"></a>
+
+    struct AddDisputeParam {
+        int scanId
+        Optional<FilterObject> findingFilters
+        int[] findings
+        DisputeStatus disputeStatus
+    }
+
+
+## Response Data Model
+Below is C++ structs definition describing the complex JSON data model used in the API response.  
+
+### LoginResult<a id="LoginResult"></a>
+
+    struct LoginResult {
+        String username;
+        String[] roles;
+        String access_token;
+        String token_type;
+    }
+
+
+### UploadMerchantResult<a id="UploadMerchantResult"></a>
+
+    struct UploadMerchantResult {
+        Integer id
+        Integer user //user id
+        Integer bank //bank id
+        Timestamp dateCreated //UNIX time
+        String fileName
+        String extension
+        String key //inner id
+        String comment
+        FileType fileType
+        ScanStatus fileStatus
+        GetScanListResult[] scans
+    }
+    
+
+
+### GetScanListResult<a id="GetScanListResult"></a>
+
+    struct GetScanListResult {
+        int scanId
+        Timestamp scanDate //UNIX time
+        ScanType scanType
+        ScanStatus scanStatus
+        ScanFrequency scanFrequency
+    }
+    
+     
+### MccResult<a id="MccResult"></a>
+
+    struct MccResult {
+        int id
+        String name
+    }
+    
+### MerchantHasScanResult<a id="MerchantHasScanResult"></a>
+
+    struct MerchantHasScanResult {
+        int id
+        int merchantId
+        String merchantName
+        Severity severity
+        String conclusion
+        String recommendation
+    }
+    
+### DisputeMessageResult<a id="DisputeMessageResult"></a>
+
+    struct DisputeMessageResult {
+        int id
+        String text
+        int findingId
+        DisputeStatus disputeStatus
+        Timestamp dateCreated //UNIX TIME
+        Timestamp lastUpdated //UNIX TIME
+        Boolean isSeenByMerchant
+        Boolean isSeenByBank
+        int userId
+        String username
+        String userFriendlyName
+    }
+
+### ScreenshotResult<a id="ScreenshotResult"></a>
+
+    struct ScreenshotResult {
+        int id
+        int url_id
+        String url_absoluteUri
+        String path
+        ScanStatus status
+        String description
+        Timestamp lastUpdated //UNIX Time
+        String filename
+        String mimeType
+    }
+
+
+### FindingResult<a id="FindingResult"></a>
+
+    struct FindingResult {
+        int id
+        String url
+        Boolean? isAvailable
+        int merchantId
+        String merchantName
+        String domain
+        String reviewerNotes
+        Boolean? isEcommReported
+        Boolean? isEcommFound
+        FindingStatus findingStatus
+        MccResult? mccActual
+        MccResult? mccReported
+        boolean isRegistered
+        FindingType findingType
+        FindingSubType findingSubType
+        Severity severity
+        DisputeMessageResult[] disputeMessages
+        ScreenshotResult[] screenshots
+    }
+
+### ScanItemResult<a id="ScanItemResult"></a>
+
+    struct ScanItemResult {
+        int id
+        int url_id
+        String urlStr
+        Boolean isAvailable
+        Boolean isRegistered
+        Severity severity
+        Boolean isEcommReported
+        Boolean isEcommFound
+        ScanStatus scanStatus
+        int riskScore
+        FindingResult[] findings
+        ScreenshotResult[] screenshots
+    }
+
+### DisputeSummaryResult<a id="DisputeSummaryResult"></a>
+
+    struct DisputeSummaryResult {
+        int id
+        String text
+        int findingId
+        DisputeStatus disputeStatus
+        Timestamp lastUpdated 
+        Boolean isSeenByBank
+        FindingType findingType
+        FindingSubType findingSubType
+        int urlId
+        String urlStr
+        int merchantId
+        String merchantName
+        int scanId
+        Timrstamp scanDate
+    }
+
+
+
+
+### GetMerchantInfoResult<a id="GetMerchantInfoResult"></a>
+
+    struct GetMerchantInfoResult {
+        String legalName
+        MerchantStatus merchantStatus
+        String[] companyRegistrationNumbers //All MIDs
+        MCCModel[] typeOfBusiness
+        AddressModel merchantHasAddresses 
+        AliasModel[] merchantHasAliases
+        UrlModel[] merchantHasUrls
+        PhoneModel[] merchantHasPhones
+        EmailAddressModel[] merchantHasEmailAddresses
+        String conclusion
+        String recommendation
+        Integer scan_id
+        MerchantHasScanResult[] merchantMerchantHasScans
+    }
+
+
+
+
+#API
+
+##Authentication [/api/login]
+### Login [POST]
+Login is required for all system actions - the login genearates and provides the user with a token_type and an access_token required for all API calls.
+For all API calls (except login), the authorization token can be provided in the following ways:
+ - An Authorization header: "Authorization: " must be provided with the token_type and access_token provided by /api/login call.
+ - A query parameter "access_token=\<access_token>"
+
+Example Authorization header: "Authorization:Bearer 93bu7riphr6umm1buanmfui25no6bup4"
+Example Query parameter: "access_token=93bu7riphr6umm1buanmfui25no6bup4"
+
+Requset Model: [LoginParam](#LoginParam)
+
+Response Model: [LoginResult](#LoginResult)
+
+The access_token expires within 24 hours of the last successful API call.
+
+#### Data parameters:
+
++ request (application/json)
+
+        {
+            "username": "user",
+            "password": "password"
+        }
+
++ response 200 (application/json)
+
+        {
+            "username": "user",
+            "roles": [
+                "ROLE_API_USER"
+            ],
+            "access_token": "asd9n02s9ccva0ie7g543v47nhvkacm00s",
+            "token_type": "Bearer"
+        }
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
+
+
+##Upload Merchants [/api/fileUpload/upload]
+###Upload Merchant List [POST]
+Upload a CSV file, allowing to Board or Deboard merchants from the system.
+
+Requset Model: [UploadMerchantParam](#UploadMerchantParam)
+
+Response Model: [UploadMerchantResult](#UploadMerchantResult)
+
+####Boarding
+
+When uploading a boarding file, one or more scans will be created for the uploaded merchants. The type and amount of scans will be determined by the scanType and scanFrequency parameters:
+#####ScanType
+ - ON_DEMAND(default) - one scan containing all mercahnts will be used
+ - BOARDING - a boarding scan will be used for all new merchants. Existing merchants will be ignored.
+ - MONITORING_SCHEDULED - not alloed.
+ - MONITORING_ON_DEMAND - two scans will be used: a boarding scan for new merchants, and a monitoring scan for existing merchants.
+ 
+#####ScanFrequency
+ - ONE_TIME(default) - A new scan will always be created, date and time of the scan would be the timestamp of the request. 
+ - DAILY - All same day scans will be grouped under one scan (with the timestamp of the beginning of the day)
+ - TWICE_A_WEEK - All scans from Monday to Thursday will be grouped under monday. All scans from Thursday to Monday will be grouped under Thursday.
+ - WEEKLY - All scans within the week will be grouped under Monday
+ - TWICE_A_MONTH - 1st-15th would be grouped under the 1st. 15th-31st will be grouped under the 15th.
+ - MONTHLY - Will be grouped under the 1st of the month.
+ 
+
+Boarding File Header: [MerchantBoardingFileHeader](#MerchantBoardingFileHeader)
+
+Boarding File Row: [MerchantBoardingFileRow](#MerchantBoardingFileRow)
+
+####Deboarding
+
+When deboarding, the system will cancel all future scans for the merchant, but will save the existing data.
+
+
+De-Boarding File Header: [MerchantDeBoardingFileHeader](#MerchantDeBoardingFileHeader)
+
+De-Boarding File Row: [MerchantDeBoardingFileRow](#MerchantDeBoardingFileRow)
+
++ response 201 
+
+        Returned if all merchants are valid. The boarding itself, as well as the scan createion, is done at the background.
+        The response will contain the batch information, as well as the scan(s) issued for the batch.
+
+        {
+            "id":36,
+            "user":72,
+            "bank":19,
+            "dateCreated":1437474837723,
+            "fileName":"Merchant June Batch.csv",
+            "extension":"csv",
+            "key":"1437474837605--1068235888",
+            "comment":"Optional comment",
+            "fileType":1,
+            "fileStatus":1,
+            "scans":[
+                {
+                    "scanId":137,
+                    "scanDate":1437474837693,
+                    "scanFriendlyDate":"7/21/15",
+                    "scanType":0,
+                    "scanStatus":1,
+                    "scanFrequency":10,
+                    "merchantCount":0,
+                    "isVisible":false,
+                    "description":null,
+                    "maxDaysSinceLastScan":30
+                }
+            ]
+        }
+
++ response 400
+
+        Returned if there is a problem with one or more of the lines in the CSV. No merchant will be boarded.
+        Error information will be provided if available.
+
++ response 403 
+
+##Scan [/api/scan/getScanList]
+### Get scan list [GET]
+Get the bank's scan list in JSON format
+
+Response Model: [GetScanListResult](#GetScanListResult)
+
++ response 200
+
+        [
+            {
+                "scanId": 1534,
+                "scanDate": 1427310000000,
+                "scanType": 1,
+                "scanStatus": 3,
+                "scanFrequency": 10
+            }
+        ]
+
+
+
+##Scan Information - Merchants [/api/merchantHasScan/scanFindings]
+### Get merchant summary for scan information [POST] 
+POST is used because of the maximum length of GET request parameters. No changes are made in the DB.
+
+Request model: [GetFilteredParam](#GetFilteredParam)
+
+Response model Array of [MerchantHasScanResult](#MerchantHasScanResult)
+
++ response 200 (application/json)
+
+        [
+            {
+                "id": 1,
+                "merchantId": 1,
+                "merchantName": "Merchant Name",
+                "severity": 1,
+                "conclusion": "This merchant is problematic",
+                "recommendation": "Do not board"
+            },
+            {
+                "id": 2,
+                "merchantId": 2,
+                "merchantName": "Merchant 2 Name",
+                "severity": 4,
+                "conclusion": null,
+                "recommendation": null
+            },
+        ]
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403 
+
+##Scan Information - Findings [/api/finding/scanFindings]
+### Get Scan Findings [POST]
+POST is used because of the maximum length of GET request parameters, but no changes are made here.
+
+Request model: [GetFilteredParam](#GetFilteredParam)
+
+Response model: Array of [FindingResult](#FindingResult)
+
++ request (application/json)
+
+        {
+            'scan_id' : <scan_id>,
+            'start' : 0,
+            'take' : 100,
+            'filters' : {
+                7 : [1,2,3,4,5,6,7,8,8,9,10,15], //filterType.FINDING_TYPE
+                8 : [23],               //filterType.FINDING_SUB_TYPE
+                9 : [true, false],      //filterType.IS_AVAILABLE
+                10 : [true, false],     //filterType.PAYMENT_PAGE_FOUND
+                11 : [1234],            //filterType.MCC_CATEGORY_FOUND
+                13 : "Merchant Name",   //filterType.MERCHANT_NAME
+                14 : ["merchant MID"],  //filterType.MERCHANT_MID
+                15 : [1,2,3,4,5],       //filterType.SEVERITY
+                16 : [1,2,3,4,5],       //filterType.DISPUTE_STATUS
+                17 : "domain.com",      //filterType.DOMAIN
+                18 : [1027],            //filterType.MERCHANT_ID
+                19 : [true, false],     //filterType.IS_REGISTERED
+                20 : [true, false],     //filterType.PAYMENT_PAGE_REPORTED
+                21 : [1234],            //filterType.MCC_CATEGORY_REPORTED
+            }
+        }
+
++ response 200 (application/json)
+
+        [
+            {
+                "id": 637,
+                "url": "http://zomertrucks.com",
+                "isAvailable": null,
+                "merchantId": 378,
+                "merchantName": "Zomer Truck Company",
+                "domain": "zomertrucks.com",
+                "reviewerNotes": null,
+                "isEcommReported": null,
+                "isEcommFound": true,
+                "findingStatus": 1,
+                "findingType": 1,
+                "mccActual": null,
+                "mccReported": {
+                    "id": 5013,
+                    "name": "Motor Vehicle Supplies and New Parts"
+                },
+                "isRegistered": true,
+                "findingSubType": 4,
+                "severity": 1,
+                "disputeMessages": [
+                    {
+                        "id": 1,
+                        "text": "This is the dispute text",
+                        "findingId": 637,
+                        "disputeStatus": 1,
+                        "dateCreated": 1427310000000,
+                        "lastUpdated": 1427310000000,
+                        "isLocal": true,
+                        "isSeenByMerchant": false,
+                        "isSeenByBank": false
+                    }
+                ]
+            }
+        ]
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403 
+
+##Finding - get finding [/api/finding/{finding_id}]
+###Get a finding [GET]
+Get a single finding by ID
+
+Response model: [FindingResult](#FindingResult)
+
++ parameters
+    + finding_id (required, number, `1`) ... Finding ID
+
++ response 200 (application/json)
+
+        {
+            "id": 608,
+            "url": "http://thestonefly.com",
+            "isAvailable": null,
+            "merchantId": 360,
+            "merchantName": "The StoneFly Fly Shop LLC",
+            "domain": "thestonefly.com",
+            "reviewerNotes": null,
+            "isEcommReported": null,
+            "isEcommFound": true,
+            "findingStatus": 1,
+            "findingType": 1,
+            "mccActual": null,
+            "mccReported": {
+                "id": 5941,
+                "name": "Sporting Goods Stores"
+            },
+            "isRegistered": true,
+            "findingSubType": 2,
+            "severity": 1,
+            "disputeMessages": [
+                {
+                    "id": 1,
+                    "text": "This is the dispute text",
+                    "findingId": 637,
+                    "disputeStatus": 1,
+                    "dateCreated": 1427310000000,
+                    "lastUpdated": 1427310000000,
+                    "isLocal": true,
+                    "isSeenByMerchant": false,
+                    "isSeenByBank": false
+                }
+            ]
+        }
+
++ response 400 (application/json)
+
++ response 404 (application/json)
+
++ response 403 (application/json)
+
+
+
+
+##Scan Information - ScanItem [/api/scanItem/scanFindings]
+### Get Scan Findings [POST]
+Get the scan results aggregated by URL.
+Response will include all available information regarding the URL scanned. URLs are filtered by the parameters provided
+
+NOTE: POST is used because of the maximum length of GET request parameters, but no changes are made here.
+
+Request model: [GetFilteredParam](#GetFilteredParam)
+
+Response Model : Array of [ScanItemResult](#ScanItemResult)
+
++ request (application/json)
+
+        see /api/finding/scanFindings
+
++ response 200 (application/json)
+
+        [
+            {
+                "id": 377,
+                "url_id": 649,
+                "urlStr": "http://zomertrucks.com",
+                "isAvailable": null,
+                "isRegistered": true,
+                "severity": 1,
+                "isEcommReported": null,
+                "isEcommFound": true,
+                "scanStatus": 3,
+                "findings": [
+                    //see JSON in /api/finding/scanFindings
+                ],
+                "screenshots": [
+                    {
+                        "id": 4,
+                        "url_id": 432,
+                        "url_absoluteUri": "http://advancehcg.com/",
+                        "path": null,
+                        "status": 3,
+                        "description": "Connection info: Unique content identifiers were detected",
+                        "lastUpdated": 145968000,
+                        "filename": null,
+                        "mimeType": null
+                    }
+                ]
+            },
+        ]
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403 
+
+##Scan Information - Change merchant [/api/merchant/changeState]
+### Change merchant state [PUT]
+Allows changing the merchant scan state within the system. 
+A merchant starts in the "Boarding" state (nominated to join the bank). 
+To add the merchant to the scheduled monitoring scans, change the status to "Monitoring".
+To delete the merchant from the system, change the status to "Deleted".
+To suspend the merchant for further inquiry - change the status to "Suspended".
+
+Request Model: [SetMerchantStatusParam](#SetMerchantStatusParam)
+
+#### Data parameters:
+
++ request (application/json)
+
+        {
+            "scanId":2,
+            "findingFilters":null, 
+            "findings":[2004, 2693, 2713, 2709],
+            "merchantFilters":null, 
+            "merchants" : [],
+            "merchantStatus" : (1 - Boarding, 2 - Monitoring, 3 - Deleted, 4 - Suspended), 
+        }
+        
++ response 200
+
+        Status was changed successfully
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
+
+##Dispute a finding [/api/disputeMessage/save]
+###Send a new dispute message [POST]
+
+Request Model: [AddDisputeParam](#AddDisputeParam)
+
++ request (application/json)
+
+        {
+            "scanId":2,
+            "filters":null, 
+            "findings":[2004, 2693, 2713, 2709],
+            "text":"This is a dispute message text"
+            "disputeStatus" : 1
+        }
+
++ response 201
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
+
+##Get dispute list [/api/disputeMessage/disputePage]
+###Gets a filtered list of disputes [POST]
+
+Request model: [GetFilteredParam](#GetFilteredParam)
+
+Response model: [DisputeSummaryResult](#DisputeSummaryResult)
+
+
++ request (application/json)
+
+        //see /api/finding/scanFindings
+
++ response 200
+
+        [
+            {
+                "id": 1,
+                "text": "ASD",
+                "findingId": 4,
+                "disputeStatus": 1,
+                "lastUpdated": 1427696899000,
+                "isSeenByBank": false,
+                "findingType": 1,
+                "findingSubType": 4,
+                "urlId": 432,
+                "urlStr": "http://advancehcg.com/",
+                "merchantId": 420,
+                "merchantName": "HCGSupplies.com",
+                "scanId": 2,
+                "scanDate": 1425765600000
+            }
+        ]
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
+##Merchant Scan Info [/MerchantViewServer/api/merchantDataPerScan/{scan_id}/{merchant_id}]
+###Get merchant scan info [GET]
+
+Receive all relevant data for a merchant. If scan ID is passed, the information will be relevant for that scan. Else, the information will be of the latest completed scan.
+
+Response model: [GetMerchantInfoResult](#GetMerchantInfoResult)
+
+
++ parameters
+    + scan_id (optional, number, `1`) ... Numeric `id` of the scan
+    + merchant_id (required, number, `1`) ... Numeric`id` of the merchant
+    
+
++ response 200
+
+        {
+            "companyName": [
+                "OMEN THREE60PRODUCTIONS"
+            ],
+            "merchantStatus": 1,
+            "legalName": "THREE60 PRODUCTIONS INC",
+            "companyRegistrationNumbers": [
+                "518089783418817",
+            ],
+            "typeOfBusiness": [
+                {
+                    "id": 5521,
+                    "name": "Car and Truck Dealers (Used Only) Sales, Service, Repairs Parts and Leasing"
+                }
+            ],
+            "merchantHasAddresses": [
+                {
+                    "id": 23410,
+                    "line1": "line1",
+                    "line2": "2",
+                    "line3": "3",
+                    "line4": "4",
+                    "city": "city",
+                    "state": "Default",
+                    "postalCode": "55555",
+                    "country": "United States",
+                    "merchantId": 15430,
+                    "findingOrigin": 1
+                }
+            ],
+            "merchantHasAliases": [
+                {
+                    "id": 6159,
+                    "text": "Alias",
+                    "aliasType": 1,
+                    "merchantId": 15430,
+                    "findingOrigin": 1
+                }
+            ],
+            "merchantHasUrls": [
+                {
+                    "id": 195663,
+                    "findingOrigin": 4,
+                    "absoluteUri": "http://califor.com/",
+                    "dba": null,
+                    "isEcommerce": true,
+                    "isRegistered": true,
+                    "mcc": 5521,
+                    "mid": "5123418817",
+                    "exclude": false
+                },
+            ],
+            "merchantHasPhones": [
+                {
+                    "id": 5038,
+                    "number": "+1 917-555-5555",
+                    "merchantId": 15430,
+                    "findingOrigin": 1
+                }
+            ],
+            "merchantHasEmailAddresses": [
+                {
+                    "id": 3027,
+                    "address": "bla@gmail.com",
+                    "merchantId": 15430,
+                    "findingOrigin": 1
+                }
+            ],
+            "conclusion": "The merchant's registered website is in violation with: Adult Content",
+            "recommendation": "The processor should verify that the merchant business is in line with processor's risk and compliance policy.",
+            "scan_id": 208,
+            "merchantMerchantHasScans": [
+                {
+                    "id": 27074,
+                    "merchantId": 15430,
+                    "merchantName": "THREE60 PRODUCTIONS INC",
+                    "severity": 1,
+                    "conclusion": "There are 84 associated sites including an ecommerce environment",
+                    "recommendation": "The processor should verify that associated ecommerce site(s) are not being processed through the merchant account to avoid risk of illegal aggregation.",
+                    "riskScore": 3320,
+                    "confidenceScore": null,
+                    "scanId": 151
+                }
+            ]
+        }
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+
+
+##Create Alias [/MerchantViewServer/api/alias/save]
+###Create merchant alias [POST]
+
+Request model: [AliasModel](#AliasModel)
+
+* id not required in request
+
+Response model: [AliasModel](#AliasModel)
+
++ response 201
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+
+##Update Alias [/MerchantViewServer/api/alias/update]
+###Create merchant alias [PUT]
+
+
+Request model: [AliasModel](#AliasModel)
+
+Response model: [AliasModel](#AliasModel)
+
++ response 200
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+##Delete Alias [/MerchantViewServer/api/alias/delete/{id}]
+###Delete merchant alias [DELETE]
+
++ parameters
+    + id (number, `1`) ... Numeric id` of the alias
+    
++ response 204
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+##Create Phone [/MerchantViewServer/api/phone/save]
+###Create merchant phone [POST]
+
+Request model: [PhoneModel](#PhoneModel)
+
+* id not required in request
+
+Response model: [PhoneModel](#PhoneModel)
+
++ response 201
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+
+##Update Phone [/MerchantViewServer/api/phone/update]
+###Create merchant phone [PUT]
+
+
+Request model: [PhoneModel](#PhoneModel)
+
+Response model: [PhoneModel](#PhoneModel)
+
++ response 200
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+##Delete Phone [/MerchantViewServer/api/phone/delete/{id}]
+###Delete merchant phone [DELETE]
+
++ parameters
+    + id (number, `1`) ... Numeric id` of the phone
+    
++ response 204
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+##Create Email [/MerchantViewServer/api/emailAddress/save]
+###Create merchant email [POST]
+
+Request model: [EmailAddressModel](#EmailAddressModel)
+
+* id not required in request
+
+Response model: [EmailAddressModel](#EmailAddressModel)
+
++ response 201
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+
+##Update Email [/MerchantViewServer/api/emailAddress/update]
+###Create merchant email [PUT]
+
+
+Request model: [EmailAddressModel](#EmailAddressModel)
+
+Response model: [EmailAddressModel](#EmailAddressModel)
+
++ response 200
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+##Delete Email [/MerchantViewServer/api/emailAddress/delete/{id}]
+###Delete merchant email [DELETE]
+
++ parameters
+    + id (number, `1`) ... Numeric id` of the email
+    
++ response 204
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+##Create Address [/MerchantViewServer/api/address/save]
+###Create merchant address [POST]
+
+Request model: [AddressModel](#AddressModel)
+
+* id not required in request
+
+Response model: [AddressModel](#AddressModel)
+
++ response 201
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+
+##Update Address [/MerchantViewServer/api/address/update]
+###Create merchant address [PUT] 
+
+
+Request model: [AddressModel](#AddressModel)
+
+Response model: [AddressModel](#AddressModel)
+
++ response 200
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
+
+##Delete Address [/MerchantViewServer/api/address/delete/{id}]
+###Delete merchant address [DELETE]
+
++ parameters
+    + id (number, `1`) ... Numeric id` of the email
+    
++ response 204
+
+
++ response 400
+
+        There was a problem with the request. If available, error information will be provided.
+
++ response 403
+
++ response 404
